@@ -1,0 +1,21 @@
+09.27 3:49 PM
+# Core Discord libraries
+discord.py
+py-cord
+discord-ext-commands
+discord-interactions
+
+# Voice & music
+PyNaCl
+ffmpeg-python
+yt-dlp
+youtube-search-python
+spotipy
+soundcloud-lib
+
+# Utilities
+aiohttp
+requests
+pillow
+python-dotenv
+jishaku
