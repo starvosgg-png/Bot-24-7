@@ -1,4 +1,4 @@
-09.27 3:49 PM
+
 # Core Discord libraries
 discord.py
 py-cord
