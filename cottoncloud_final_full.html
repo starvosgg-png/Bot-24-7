@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CottonCloud — Minecraft & VPS Hosting</title>
+  <meta name="description" content="CottonCloud — Affordable Minecraft & VPS hosting. Invite-based free plans, cheap paid plans, DDoS protection, 24/7 support.">
+  <style>
+    :root{
+      --bg1:#05080c;
+      --bg2:#0a1220;
+      --card:#0f1720;
+      --muted:#99aab3;
+      --accent:#4fd8ff;
+      --accent-2:#8a6bff;
+      --glass:rgba(255,255,255,0.03);
+      --success-grad: linear-gradient(90deg,#7ef0c8,#3ddaa3);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e8f8ff;-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    /* Snow canvas */
+    #snow{position:fixed;left:0;top:0;pointer-events:none;z-index:1}
+
+    /* Header */
+    header{position:sticky;top:0;z-index:60;background:linear-gradient(180deg,rgba(3,6,10,0.6),rgba(3,6,10,0.35));backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.02)}
+    .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px 16px;gap:12px}
+    .brand{display:flex;flex-direction:column}
+    .brand h1{margin:0;font-size:22px;letter-spacing:0.6px}
+    .brand .accent{color:var(--accent);font-weight:800}
+    .subtitle{color:var(--muted);font-size:12px;margin-top:4px}
+
+    /* Right hamburger/menu */
+    .menu-right{display:flex;align-items:center;gap:10px}
+    .btn-discord{background:linear-gradient(90deg,#7b5eff,#6b42ff);padding:8px 12px;border-radius:10px;color:white;text-decoration:none;font-weight:800;border:0;box-shadow:0 8px 24px rgba(107,66,255,0.12)}
+    .hamburger{width:46px;height:46px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;background:transparent;cursor:pointer;color:#eaf6ff;font-size:18px}
+
+    /* Slide-in menu (right) */
+    .side-menu{position:fixed;right:16px;top:80px;width:260px;background:linear-gradient(180deg,rgba(10,14,18,0.98),rgba(8,12,16,0.98));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 20px 60px rgba(0,0,0,0.6);transform:translateX(12px);opacity:0;visibility:hidden;transition:all .22s;z-index:70}
+    .side-menu.open{transform:translateX(0);opacity:1;visibility:visible}
+    .side-menu a{display:block;padding:10px 12px;border-radius:10px;color:#eaf6ff;text-decoration:none;font-weight:700;margin-bottom:6px}
+    .side-menu a.join{background:linear-gradient(90deg,#7b5eff,#6b42ff);text-align:center;color:white}
+
+    /* Container & hero */
+    .container{max-width:1200px;margin:26px auto;padding:0 16px;position:relative;z-index:10}
+    .hero{padding:36px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(2,6,12,0.6);border:1px solid rgba(255,255,255,0.02)}
+    .hero-grid{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+    .hero-left{flex:1;min-width:260px}
+    .hero-right{width:360px;min-width:240px}
+    .hero h2{font-size:44px;margin:0;line-height:1.02}
+    .hero .highlight{color:var(--accent)}
+    .hero p{color:var(--muted);margin-top:12px;font-size:15px}
+
+    .hero-actions{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn-primary{background:linear-gradient(90deg,#2db6ff,#2da6ff);padding:12px 18px;border-radius:14px;color:#021820;font-weight:900;text-decoration:none}
+    .btn-ghost{background:transparent;padding:12px 18px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:800;text-decoration:none}
+    .btn-discord-ghost{background:linear-gradient(90deg,#6b4cff,#6b3cff);padding:12px 18px;border-radius:14px;color:white;font-weight:900;text-decoration:none}
+
+    /* Tabs */
+    .tabs{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap}
+    .tab{padding:10px 14px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer;font-weight:800;color:#dff7ff}
+    .tab.active{background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 8px 30px rgba(2,6,12,0.6);border:1px solid rgba(255,255,255,0.04)}
+
+    /* Cards */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:8px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.012),rgba(255,255,255,0.006));padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 8px 30px rgba(2,6,12,0.5)}
+    .card .title-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .card h3{margin:0;font-size:18px}
+    .price{font-weight:900;color:var(--accent-2);font-size:18px}
+    .desc{color:var(--muted);font-size:13px;margin-top:8px}
+
+    .features{margin:12px 0;padding:0;list-style:none}
+    .features li{display:flex;gap:10px;align-items:center;color:var(--muted);margin:8px 0;font-size:14px}
+    .tick{width:22px;height:22px;border-radius:6px;background:var(--success-grad);display:inline-flex;align-items:center;justify-content:center;color:#022;font-weight:800}
+
+    .select{display:inline-block;margin-top:8px;padding:10px 12px;border-radius:10px;font-weight:900;text-decoration:none;color:#021820;background:linear-gradient(90deg,#7b4cf5,#a166ff)}
+
+    .explain{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.45;background:rgba(255,255,255,0.01);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+
+    /* Support & footer */
+    .support{margin-top:28px;display:grid;grid-template-columns:1fr 360px;gap:14px;align-items:start}
+    .support-card{background:linear-gradient(180deg,rgba(255,255,255,0.012),rgba(255,255,255,0.006));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
+    .support-card h3{margin:0}
+    .support-list{margin-top:12px;padding:0;list-style:none;color:var(--muted)}
+    .support-list li{display:flex;gap:10px;align-items:center;margin:8px 0}
+
+    .right-panel{background:linear-gradient(180deg,rgba(255,255,255,0.012),rgba(255,255,255,0.006));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
+    .right-panel h4{margin:0}
+    .right-panel p{color:var(--muted);margin-top:8px}
+
+    footer{margin-top:28px;padding:22px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* responsive */
+    @media(max-width:980px){ .support{grid-template-columns:1fr} .hero-right{width:100%} }
+    @media(max-width:760px){
+      .brand h1{font-size:18px}
+      .hero h2{font-size:28px}
+      .side-menu{right:8px;top:74px;width:86%}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="snow"></canvas>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <h1><span class="accent">CottonCloud</span> Hosting</h1>
+        <div class="subtitle">Free & Paid Minecraft and VPS — fast, secure, and friendly</div>
+      </div>
+
+      <div class="menu-right">
+        <a class="btn-discord" href="https://discord.gg/ARq64vVCYm" target="_blank" rel="noopener">Join Discord</a>
+        <button class="hamburger" id="hamb">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="side-menu" id="sideMenu" aria-hidden="true">
+    <a href="#" data-scroll="top">Home</a>
+    <a href="#plans" data-scroll="plans">See Plans</a>
+    <a href="#minecraft-free" data-scroll="minecraft-free">Minecraft Free</a>
+    <a href="#minecraft-paid" data-scroll="minecraft-paid">Minecraft Paid</a>
+    <a href="#vps-free" data-scroll="vps-free">VPS Free</a>
+    <a href="#vps-paid" data-scroll="vps-paid">VPS Paid</a>
+    <a href="#support" data-scroll="support">Support</a>
+    <a class="join" href="https://discord.gg/ARq64vVCYm" target="_blank">Join Discord</a>
+  </nav>
+
+  <main class="container" id="top">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <h2>The best <span class="highlight">free</span> & paid Minecraft<br>server and VPS hosting</h2>
+          <p>Create a server, get invites, or choose a paid plan. All plans include DDoS protection and 24/7 monitoring. Click <strong>See Plans</strong> to view available options or <strong>Join Discord</strong> to order and get support.</p>
+          <div class="hero-actions">
+            <a class="btn-primary" href="#plans" id="seePlans">See Our Plans</a>
+            <a class="btn-ghost" href="#plans">View Pricing</a>
+            <a class="btn-discord-ghost" href="https://discord.gg/ARq64vVCYm" target="_blank">Join our Discord</a>
+          </div>
+        </div>
+        <aside class="hero-right">
+          <div class="right-panel">
+            <h4>Quick Info</h4>
+            <p>24/7 servers • DDoS protection • Replacement policy • Invite-based free plans</p>
+            <p style="margin-top:8px;color:var(--muted)">Refunds only when replacement fails after 1 day. Abuse (mining) will lead to suspension.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Plans anchor -->
+    <section id="plans" style="margin-top:18px">
+      <div class="tabs" role="tablist" aria-label="Plan categories">
+        <button class="tab active" data-tab="minecraft-paid">Minecraft Paid</button>
+        <button class="tab" data-tab="minecraft-free">Minecraft Free</button>
+        <button class="tab" data-tab="vps-paid">VPS Paid</button>
+        <button class="tab" data-tab="vps-free">VPS Free</button>
+      </div>
+
+      <!-- Minecraft Paid Panel -->
+      <div id="minecraft-paid" class="panel">
+        <div class="cards">
+          <!-- Plan 1 -->
+          <article class="card" id="mc-plan-1">
+            <div class="title-row"><h3>Plan 1</h3><div class="price">₹80 / m</div></div>
+            <div class="desc">Lightweight — for prototyping and small groups.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 4 GB</li>
+              <li><span class="tick">✓</span> CPU: 100%</li>
+              <li><span class="tick">✓</span> SSD: 15 GB</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a>
+            <div class="explain">Best for small survival servers and testing with friends. Automated backups included.</div>
+          </article>
+
+          <!-- Plan 2 -->
+          <article class="card" id="mc-plan-2">
+            <div class="title-row"><h3>Plan 2</h3><div class="price">₹160 / m</div></div>
+            <div class="desc">For medium servers and modpacks.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 8 GB</li>
+              <li><span class="tick">✓</span> CPU: 350%</li>
+              <li><span class="tick">✓</span> SSD: 60 GB</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a>
+            <div class="explain">Recommended for modded servers and communities that need extra memory.</div>
+          </article>
+
+          <!-- Plan 3 -->
+          <article class="card" id="mc-plan-3">
+            <div class="title-row"><h3>Plan 3</h3><div class="price">₹270 / m</div></div>
+            <div class="desc">High-performance for large servers.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 16 GB</li>
+              <li><span class="tick">✓</span> CPU: 500%</li>
+              <li><span class="tick">✓</span> SSD: 120 GB</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a>
+            <div class="explain">Ideal for public servers and heavy modpacks — priority support included.</div>
+          </article>
+
+          <!-- Plan 4 -->
+          <article class="card" id="mc-plan-4">
+            <div class="title-row"><h3>Plan 4</h3><div class="price">₹500 / m</div></div>
+            <div class="desc">Enterprise-grade resources.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 32 GB</li>
+              <li><span class="tick">✓</span> CPU: 1000%</li>
+              <li><span class="tick">✓</span> SSD: 200 GB</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a>
+            <div class="explain">Perfect for big networks and high concurrency. Managed options available.</div>
+          </article>
+
+          <!-- Plan 5 -->
+          <article class="card" id="mc-plan-5">
+            <div class="title-row"><h3>Plan 5</h3><div class="price">₹790 / m</div></div>
+            <div class="desc">Massive dedicated resources.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 64 GB</li>
+              <li><span class="tick">✓</span> CPU: Unlimited</li>
+              <li><span class="tick">✓</span> SSD: 320 GB</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a>
+            <div class="explain">Custom SLAs and dedicated hardware for the most demanding servers.</div>
+          </article>
+
+          <!-- Plan 6 (Custom) -->
+          <article class="card" id="mc-plan-6">
+            <div class="title-row"><h3>Custom Plan</h3><div class="price">Price: Custom</div></div>
+            <div class="desc">Choose any RAM / CPU / SSD combination.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> Custom RAM</li>
+              <li><span class="tick">✓</span> Custom CPU</li>
+              <li><span class="tick">✓</span> Custom SSD</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+              <li><span class="tick">✓</span> 24/7 Uptime</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Request Custom Plan</a>
+            <div class="explain">Tell us the specs you need in Discord and we will quote a price.</div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Minecraft Free Panel -->
+      <div id="minecraft-free" class="panel" style="display:none; margin-top:14px">
+        <div class="cards">
+          <article class="card">
+            <h3>Invite Free Plans</h3>
+            <div class="desc">Invite members to earn free server resources.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> 5 invites = 4 GB RAM</li>
+              <li><span class="tick">✓</span> 10 invites = 8 GB RAM</li>
+              <li><span class="tick">✓</span> 15 invites = 12 GB RAM</li>
+              <li><span class="tick">✓</span> 20 invites = 16 GB RAM</li>
+              <li><span class="tick">✓</span> DDoS Protection (limited)</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Make Ticket — Join Discord</a>
+            <div class="explain">Free servers are limited resources and provided by bot-based distribution. Make a ticket after reaching the invite goal shown above.</div>
+          </article>
+        </div>
+      </div>
+
+      <!-- VPS Paid Panel -->
+      <div id="vps-paid" class="panel" style="display:none; margin-top:14px">
+        <div class="cards">
+          <article class="card"><div class="title-row"><h3>8 GB RAM</h3><div class="price">₹80</div></div><div class="desc">1 vCPU • 20 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 8 GB RAM</li><li><span class="tick">✓</span> 1 vCPU</li><li><span class="tick">✓</span> 20 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>16 GB RAM</h3><div class="price">₹120</div></div><div class="desc">4 vCPU • 40 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 16 GB RAM</li><li><span class="tick">✓</span> 4 vCPU</li><li><span class="tick">✓</span> 40 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>24 GB RAM</h3><div class="price">₹160</div></div><div class="desc">8 vCPU • 70 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 24 GB RAM</li><li><span class="tick">✓</span> 8 vCPU</li><li><span class="tick">✓</span> 70 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>32 GB RAM</h3><div class="price">₹200</div></div><div class="desc">12 vCPU • 100 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 32 GB RAM</li><li><span class="tick">✓</span> 12 vCPU</li><li><span class="tick">✓</span> 100 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>48 GB RAM</h3><div class="price">₹250</div></div><div class="desc">16 vCPU • 150 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 48 GB RAM</li><li><span class="tick">✓</span> 16 vCPU</li><li><span class="tick">✓</span> 150 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>64 GB RAM</h3><div class="price">₹300</div></div><div class="desc">20 vCPU • 200 GB Disk</div><ul class="features"><li><span class="tick">✓</span> 64 GB RAM</li><li><span class="tick">✓</span> 20 vCPU</li><li><span class="tick">✓</span> 200 GB Disk</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+
+          <article class="card"><div class="title-row"><h3>Special Offer</h3><div class="price">₹600</div></div><div class="desc">250 GB RAM • 56 vCPU • 500 GB Disk</div><ul class="features"><li><span class="tick">✓</span> Dedicated RAM/Disk/Cores</li><li><span class="tick">✓</span> Dedicated IPv4</li><li><span class="tick">✓</span> DDoS Protection</li><li><span class="tick">✓</span> 24/7 Uptime</li></ul><a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Select — Join Discord</a></article>
+        </div>
+
+        <div class="explain">VPS are provided on AMD EPYC CPUs. Duration: 3 months. No mining allowed (abuse leads to suspension). Refund policy: replacements provided; refunds only if replacement fails after 1 day.</div>
+      </div>
+
+      <!-- VPS Free Panel -->
+      <div id="vps-free" class="panel" style="display:none; margin-top:14px">
+        <div class="cards">
+          <article class="card">
+            <h3>20 Invite Reward — VPS</h3>
+            <div class="desc">Invite 20 members to get this reward.</div>
+            <ul class="features">
+              <li><span class="tick">✓</span> RAM: 64 GB</li>
+              <li><span class="tick">✓</span> CPU: Intel Xeon E5 (10-core)</li>
+              <li><span class="tick">✓</span> SSD: 100 GB</li>
+              <li><span class="tick">✓</span> DDoS Protection</li>
+            </ul>
+            <a class="select" href="https://discord.gg/ARq64vVCYm" target="_blank">Join Discord — Claim</a>
+            <div class="explain">VPS free rewards are distributed by bot. Create a ticket in Discord after reaching the invite goal.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Support Section -->
+    <section id="support" class="support">
+      <div class="support-card">
+        <h3>Support & Policies</h3>
+        <ul class="support-list">
+          <li><span class="tick">✓</span> 24/7 Uptime Monitoring</li>
+          <li><span class="tick">✓</span> Advanced DDoS Protection</li>
+          <li><span class="tick">✓</span> Ticket-based Customer Support (Discord)</li>
+          <li><span class="tick">✓</span> Replacement if VPS/server fails — contact support within 24 hours</li>
+        </ul>
+        <a class="support-cta" href="https://discord.gg/ARq64vVCYm" target="_blank">Open Support on Discord</a>
+      </div>
+
+      <aside class="right-panel">
+        <h4>Quick Links</h4>
+        <p class="desc">Use the menu or buttons to jump to plan categories. Select any plan to open Discord and start the order process.</p>
+        <p style="margin-top:12px;color:var(--muted)">Made with ❤️ by CottonCloud — <strong>Extreme hard work</strong> to bring you the best hosting experience.</p>
+      </aside>
+    </section>
+
+    <div style="height:24px"></div>
+  </main>
+
+  <footer>© 2025 CottonCloud Hosting — All Rights Reserved • <a href="https://discord.gg/ARq64vVCYm" target="_blank">Discord</a></footer>
+
+  <script>
+    // Smooth scroll for internal links
+    document.querySelectorAll('[data-scroll]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const id = btn.getAttribute('data-scroll');
+        if(id==='top'){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach(t=> t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      panels.forEach(p=> p.style.display = 'none');
+      const id = t.dataset.tab;
+      const panel = document.getElementById(id);
+      if(panel) panel.style.display = 'block';
+      window.scrollTo({top:document.getElementById('plans').offsetTop-12, behavior:'smooth'});
+    }));
+
+    // Hamburger open side-menu
+    const hamb = document.getElementById('hamb');
+    const side = document.getElementById('sideMenu');
+    hamb.addEventListener('click', ()=>{
+      const open = side.classList.toggle('open');
+      side.setAttribute('aria-hidden', !open);
+    });
+    // Close side-menu when clicking a link
+    side.querySelectorAll('a[data-scroll]').forEach(a=> a.addEventListener('click', ()=> side.classList.remove('open')));
+
+    // Snow effect
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    const flakes = [];
+    const COUNT = 120;
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+    function init(){ flakes.length=0; for(let i=0;i<COUNT;i++){ flakes.push({x:Math.random()*W, y:Math.random()*H, r:rand(0.8,3.2), d:rand(0.4,1.4), vx:rand(-0.4,0.4), vy:rand(0.3,1.0)}); } }
+    window.addEventListener('resize', ()=>{ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; init(); });
+    function update(){
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      for(let f of flakes){
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+        ctx.fill();
+        f.x += f.vx * f.d;
+        f.y += f.vy * f.d;
+        if(f.y > H+10){ f.y = -10; f.x = Math.random()*W; }
+        if(f.x > W+10) f.x = -10;
+        if(f.x < -10) f.x = W+10;
+      }
+      requestAnimationFrame(update);
+    }
+    init(); update();
+  </script>
+</body>
+</html>
